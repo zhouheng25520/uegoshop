@@ -36,6 +36,7 @@ var (
 	ServiceUnavailable    = add(503, "overload protection, service temporarily unavailable") // 过载保护,服务暂不可用
 	Deadline              = add(504, "server request time out")                              // 服务调用超时
 	LimitExceed           = add(509, "exceeding the limit")
+	TimeStampFormat		  = add(510,"time format failed")
 
 
 	FileNotExists         = add(616, "upload file not exists")                               // 上传文件不存在
