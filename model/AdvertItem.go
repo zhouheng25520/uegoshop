@@ -1,6 +1,7 @@
 package model
 
 import (
+	"ccshop/errorcode"
 	"fmt"
 	"github.com/jinzhu/gorm"
 )
@@ -20,12 +21,16 @@ func (ai *AdvertItem) TableName() string {
 }
 
 
-func (ai *AdvertItem) FetchList(db *gorm.DB, condition map[string]interface{}) ([]*AdvertItem, error) {
-	var itemList []*AdvertItem
-	err := db.Model(ai).Where(condition).Order("sort asc").Find(itemList).Error
+func (ai *AdvertItem) FetchList(db *gorm.DB, condition map[string]interface{}) ([]*AdvertItem, errorcode.Code) {
+	var AdvertItems []*AdvertItem
+	ecode := errorcode.OK
+	err := db.Model(&AdvertItem{}).Where(condition).Order("sort asc").Find(&AdvertItems).Error
 	if err != nil {
-		fmt.Println("query advert items has failed , err:", err)
-		return itemList, err
+		if err != gorm.ErrRecordNotFound {
+			return AdvertItems, ecode
+		}
+		fmt.Println("got advert items has err :", err)
+		return AdvertItems, errorcode.DataFailed
 	}
-	return itemList, nil
+	return AdvertItems, ecode
 }

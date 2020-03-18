@@ -26,6 +26,45 @@ func (a *Advert) TableName() string {
 	return "cc_advertisings"
 }
 
+func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition map[string]interface{}) (*Advert, errorcode.Code) {
+	advert := &Advert{}
+	err := db.Model(a).Where(condition).First(advert).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errorcode.OK
+		}
+		return nil, errorcode.DataFailed
+	}
+	fromDateTime, err := common.FormatTime(common.CENTRAL_STANDARD_TIME_LAYOUT, advert.FromDate.String())
+	if err != nil {
+		return advert, errorcode.TimeStampFormat
+	}
+	advert.FromDateTime = fromDateTime.Unix()
+
+	endTime, err := common.FormatTime(common.CENTRAL_STANDARD_TIME_LAYOUT, advert.ToDate.String())
+	if err != nil {
+		return advert, errorcode.TimeStampFormat
+	}
+
+	if time.Now().Unix()-endTime.Unix() < 0 {
+		advert.ExpireTime = time.Now().Unix() - endTime.Unix()
+	}
+
+	items := &AdvertItem{}
+	advertItems, ecode := items.FetchList(db, map[string]interface{}{
+		"is_enabled": 1,
+	})
+	if ecode.Code() != errorcode.OK.Code() {
+		// 如果code非正常code, 将items置为空
+		advertItems = []*AdvertItem{}
+	}
+	advert.Items = advertItems
+
+	return advert, errorcode.OK
+}
+
+
+
 func (a *Advert) FetchAdvert(db *gorm.DB, condition map[string]interface{}) (*Advert, errorcode.Code) {
 	advert := &Advert{}
 	err := db.Model(a).Where(condition).First(advert).Error
@@ -50,14 +89,15 @@ func (a *Advert) FetchAdvert(db *gorm.DB, condition map[string]interface{}) (*Ad
 		advert.ExpireTime = time.Now().Unix() - endTime.Unix()
 	}
 
-	//items := &AdvertItem{}
-	//advertItems, err := items.FetchList(db, map[string]interface{}{
-	//	"is_enabled": 1,
-	//})
-	//if err != nil {
-	//	fmt.Println("fetch advert items has failed , err :", err)
-	//}
-	//advert.Items = advertItems
+	items := &AdvertItem{}
+	advertItems, ecode := items.FetchList(db, map[string]interface{}{
+		"is_enabled": 1,
+	})
+	if ecode.Code() != errorcode.OK.Code() {
+		// 如果code非正常code, 将items置为空
+		advertItems = []*AdvertItem{}
+	}
+	advert.Items = advertItems
 
 	return advert, errorcode.OK
 }
