@@ -1,6 +1,7 @@
 package service
 
 import (
+	"ccshop/database"
 	"ccshop/errorcode"
 	"ccshop/model"
 	"github.com/jinzhu/gorm"
@@ -28,7 +29,7 @@ func (as *AdvertService) FetchAdvertingFromOrm(code string) (*model.Advert, erro
 
 
 func NewAdvertService(db *gorm.DB) *AdvertService {
-	return &AdvertService{Db: db}
+	return &AdvertService{Db: database.Db()}
 }
 
 

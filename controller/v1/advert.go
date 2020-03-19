@@ -6,11 +6,16 @@ import (
 	"ccshop/errorcode"
 	"ccshop/response"
 	"ccshop/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 type Advert struct {
+	Db *gorm.DB
+}
+
+func NewAdvert(db *gorm.DB) *Advert {
+	return &Advert{Db: database.Db()}
 }
 
 // register advert struct
@@ -23,27 +28,14 @@ func AdvertRegister(router *gin.RouterGroup) {
 func (advert *Advert) GetInfoFromOrm(c *gin.Context)  {
 	code := c.DefaultQuery("code", "")
 	resp := response.NewResponse(c)
+	// todo validator
 	if common.IsEmptyString(code) {
 		resp.Body.Code = errorcode.ParamsInvalid.Code()
 		resp.ReturnJsonError()
 		return
 	}
-	config := &database.Config{
-		User:        "root",
-		Password:    "123456",
-		DBName:      "ccshop",
-		Charset:     "utf8",
-		//MaxOpenConn: 50,
-		//MaxLifetime: int(time.Second * 3),
-	}
-	db := database.NewMysqlDB(config)
-	if err := db.Create(); err != nil {
-		fmt.Println("err is :", err)
-		return
-	}
-	defer db.DB.Close()
 
-	advertService := service.NewAdvertService(db.DB)
+	advertService := service.NewAdvertService(advert.Db)
 	adverts, ecode := advertService.FetchAdvertingFromOrm(code)
 	if ecode != errorcode.OK {
 		resp.Body.Code = ecode.Code()
@@ -62,22 +54,8 @@ func (advert *Advert) GetInfo(c *gin.Context) {
 		resp.ReturnJsonError()
 		return
 	}
-	config := &database.Config{
-		User:        "root",
-		Password:    "123456",
-		DBName:      "ccshop",
-		Charset:     "utf8",
-		//MaxOpenConn: 50,
-		//MaxLifetime: int(time.Second * 3),
-	}
-	db := database.NewMysqlDB(config)
-	if err := db.Create(); err != nil {
-		fmt.Println("err is :", err)
-		return
-	}
-	defer db.DB.Close()
 
-	advertService := service.NewAdvertService(db.DB)
+	advertService := service.NewAdvertService(advert.Db)
 	adverts, ecode := advertService.FetchAdvertingFromModel(code)
 	if ecode != errorcode.OK {
 		resp.Body.Code = ecode.Code()

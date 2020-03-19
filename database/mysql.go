@@ -21,8 +21,10 @@ type Driver interface {
 	Closer
 }
 
+var DB *gorm.DB
 
-type Config struct {
+
+type config struct {
 	//sample:  "user:password@/dbname?charset=utf8&parseTime=True&loc=Local"
 	//see https://github.com/go-sql-driver/mysql#parameters
 	// Database user
@@ -43,27 +45,46 @@ type Config struct {
 	MaxLifetime       int
 }
 
-type MysqlDB struct {
-	Config *Config
+type mysqlDB struct {
+	config *config
 	DB *gorm.DB
 }
 
-func NewMysqlDB(config *Config) *MysqlDB {
-	return &MysqlDB{Config: config}
+func NewMysqlDB(config *config) *mysqlDB {
+	return &mysqlDB{config: config}
+}
+
+func InitMysql() error {
+	config := &config{
+		User:        "root",
+		Password:    "123456",
+		DBName:      "ccshop",
+		Charset:     "utf8",
+		MaxOpenConn: 200,
+		MaxLifetime: int(time.Millisecond),
+	}
+	db := NewMysqlDB(config)
+	err := db.Create()
+	if err != nil {
+		fmt.Println("create connection for mysql database has failed, err2es :", err)
+		return err
+	}
+	DB = db.DB
+	return nil
 }
 
 // create mysql database connections pool
-func (mdb *MysqlDB) Create() (err error) {
+func (mdb *mysqlDB) Create() (err error) {
 	//sample:  "user:password@/dbname?charset=utf8&parseTime=True&loc=Local"
-	if len(mdb.Config.Charset) <= 0 {
-		mdb.Config.Charset = "utf8"
+	if len(mdb.config.Charset) <= 0 {
+		mdb.config.Charset = "utf8"
 	}
-	if len(mdb.Config.Parameters) <= 0 {
-		mdb.Config.Parameters = "parseTime=True&loc=Local"
+	if len(mdb.config.Parameters) <= 0 {
+		mdb.config.Parameters = "parseTime=True&loc=Local"
 	}
 	source := fmt.Sprintf("%s:%s@/%s?charset=%s&%s",
-		mdb.Config.User, mdb.Config.Password,
-		mdb.Config.DBName, mdb.Config.Charset, mdb.Config.Parameters)
+		mdb.config.User, mdb.config.Password,
+		mdb.config.DBName, mdb.config.Charset, mdb.config.Parameters)
 	mdb.DB, err = gorm.Open("mysql", source)
 
 	// set mysql db log level
@@ -80,21 +101,26 @@ func (mdb *MysqlDB) Create() (err error) {
 }
 
 // close gorm database connection
-func (mdb *MysqlDB) Close() error {
+func (mdb *mysqlDB) Close() error {
 	return mdb.DB.Close()
 }
 
 // set connections pool
-func (mdb *MysqlDB) setConnectionPool()  {
-	if mdb.Config.maxIdle > 0 {
-		mdb.DB.DB().SetMaxIdleConns(mdb.Config.maxIdle)
+func (mdb *mysqlDB) setConnectionPool()  {
+	if mdb.config.maxIdle > 0 {
+		mdb.DB.DB().SetMaxIdleConns(mdb.config.maxIdle)
 	}
-	if mdb.Config.MaxOpenConn > 0 {
-		mdb.DB.DB().SetMaxOpenConns(mdb.Config.MaxOpenConn)
+	if mdb.config.MaxOpenConn > 0 {
+		mdb.DB.DB().SetMaxOpenConns(mdb.config.MaxOpenConn)
 	}
-	if mdb.Config.MaxLifetime > 0 {
-		mdb.DB.DB().SetConnMaxLifetime(time.Duration(mdb.Config.MaxLifetime))
+	if mdb.config.MaxLifetime > 0 {
+		mdb.DB.DB().SetConnMaxLifetime(time.Duration(mdb.config.MaxLifetime))
 	}
+}
+
+func Db() *gorm.DB {
+
+	return DB
 }
 
 

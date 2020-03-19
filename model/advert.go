@@ -28,7 +28,7 @@ func (a *Advert) TableName() string {
 
 func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition map[string]interface{}) (*Advert, errorcode.Code) {
 	advert := &Advert{}
-	err := db.Model(a).Where(condition).First(advert).Error
+	err := db.Model(a).Where(condition).First(&advert).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errorcode.OK
@@ -67,7 +67,7 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition map[string]interface{
 
 func (a *Advert) FetchAdvert(db *gorm.DB, condition map[string]interface{}) (*Advert, errorcode.Code) {
 	advert := &Advert{}
-	err := db.Model(a).Where(condition).First(advert).Error
+	err := db.Model(&Advert{}).Where(condition).First(advert).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errorcode.OK
