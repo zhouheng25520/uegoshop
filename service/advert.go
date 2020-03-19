@@ -28,7 +28,7 @@ func (as *AdvertService) FetchAdvertingFromOrm(code string) (*model.Advert, erro
 
 
 
-func NewAdvertService(db *gorm.DB) *AdvertService {
+func NewAdvertService() *AdvertService {
 	return &AdvertService{Db: database.Db()}
 }
 

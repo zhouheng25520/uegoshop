@@ -35,7 +35,7 @@ func (advert *Advert) GetInfoFromOrm(c *gin.Context)  {
 		return
 	}
 
-	advertService := service.NewAdvertService(advert.Db)
+	advertService := service.NewAdvertService()
 	adverts, ecode := advertService.FetchAdvertingFromOrm(code)
 	if ecode != errorcode.OK {
 		resp.Body.Code = ecode.Code()
@@ -49,13 +49,14 @@ func (advert *Advert) GetInfoFromOrm(c *gin.Context)  {
 func (advert *Advert) GetInfo(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	resp := response.NewResponse(c)
+	// todo validator
 	if common.IsEmptyString(code) {
 		resp.Body.Code = errorcode.ParamsInvalid.Code()
 		resp.ReturnJsonError()
 		return
 	}
 
-	advertService := service.NewAdvertService(advert.Db)
+	advertService := service.NewAdvertService()
 	adverts, ecode := advertService.FetchAdvertingFromModel(code)
 	if ecode != errorcode.OK {
 		resp.Body.Code = ecode.Code()

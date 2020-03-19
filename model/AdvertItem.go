@@ -21,7 +21,7 @@ func (ai *AdvertItem) TableName() string {
 }
 
 
-func (ai *AdvertItem) FetchList(db *gorm.DB, condition map[string]interface{}) ([]*AdvertItem, errorcode.Code) {
+func (ai *AdvertItem) FetchList(db *gorm.DB, condition interface{}) ([]*AdvertItem, errorcode.Code) {
 	var AdvertItems []*AdvertItem
 	ecode := errorcode.OK
 	err := db.Model(&AdvertItem{}).Where(condition).Order("sort asc").Find(&AdvertItems).Error
