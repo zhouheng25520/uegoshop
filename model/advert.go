@@ -3,6 +3,7 @@ package model
 import (
 	"ccshop/common"
 	"ccshop/errorcode"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -16,7 +17,7 @@ type Advert struct {
 	FromDate     time.Time     `json:"-"`
 	FromDateTime int64         `json:"from_date_time" gorm:"-"`
 	ExpireTime   int64         `json:"expired" gorm:"-"`
-	Items        []*AdvertItem `json:"items" gorm:"ForeignKey:AdID;ASSOCIATION_FOREIGNKEY:ID"`
+	Items        []*AdvertItem `json:"items" gorm:"FOREIGNKEY:AdID;ASSOCIATION_FOREIGNKEY:ID"`
 	ToDate       time.Time     `json:"-"`
 	UpdatedAt    time.Time     `json:"-"`
 	CreatedAt    time.Time     `json:"-"`
@@ -28,14 +29,57 @@ func (a *Advert) TableName() string {
 
 func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert, errorcode.Code) {
 	advert := &Advert{}
-	//err := db.Model(a).Where(condition).First(&advert).Error
-	err := db.Model(a).Related(&AdvertItem{},"Items").Find(&advert).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errorcode.OK
-		}
+
+	/*
+	 |-------------------------------------------------------------------------
+	 | 关联模型 -- Related方式实现, 并按字段排序
+	 |-------------------------------------------------------------------------
+	 */
+	db.Where(condition).First(&advert)
+	if notFound := db.RecordNotFound(); notFound == true {
+		return nil, errorcode.OK
+	}
+	result := db.Model(&advert).Related(&advert.Items,"Items").
+		Where(AdvertItem{AdID:advert.ID,IsEnabled:1}).
+		Order("sort asc").Find(&advert.Items)
+	/*
+     |--------------------------------------------------------------------------
+	*/
+
+	/*
+	 |-------------------------------------------------------------------------
+	 | 关联模型 -- association实现方式 并按字段排序
+	 |-------------------------------------------------------------------------
+	 | recordDB := db.Where(condition).First(&advert)
+	 | if recordDB.RecordNotFound() == true {
+	 |    return nil, errorcode.OK
+	 | }
+	 | db.Model(&advert).Association("Items")
+	 | result := db.Where(AdvertItem{AdID:advert.ID,IsEnabled:1}).Order("sort asc").Find(&advert.Items)
+	 |--------------------------------------------------------------------------
+	 */
+
+	/*
+	 |-------------------------------------------------------------------------
+	 | 预加载数据查询 -- Preload实现方式, 并按字段排序
+	 |-------------------------------------------------------------------------
+	 | recordDB := db.Where(condition).First(&advert)
+	 | if recordDB.RecordNotFound() == true {
+	 |	  return nil, errorcode.OK
+	 | }
+	 | result = recordDB.Preload("Items", func(db *gorm.DB) *gorm.DB {
+	 |		  item := &AdvertItem{}
+	 |		  return db.Where("is_enabled = ? ", "1").
+	 |				Order(fmt.Sprintf("%s.sort asc", item.TableName()))
+	 |	  }).Find(&advert)
+	 |--------------------------------------------------------------------------
+	*/
+
+	if err := result.Error; err != nil {
+		fmt.Println("err is :>>", err)
 		return nil, errorcode.DataFailed
 	}
+
 	fromDateTime, err := common.FormatTime(common.CENTRAL_STANDARD_TIME_LAYOUT, advert.FromDate.String())
 	if err != nil {
 		return advert, errorcode.TimeStampFormat
@@ -50,16 +94,6 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 	if time.Now().Unix()-endTime.Unix() < 0 {
 		advert.ExpireTime = time.Now().Unix() - endTime.Unix()
 	}
-
-	//items := &AdvertItem{}
-	//advertItems, ecode := items.FetchList(db, map[string]interface{}{
-	//	"is_enabled": 1,
-	//})
-	//if ecode.Code() != errorcode.OK.Code() {
-	//	// 如果code非正常code, 将items置为空
-	//	advertItems = []*AdvertItem{}
-	//}
-	//advert.Items = advertItems
 
 	return advert, errorcode.OK
 }
