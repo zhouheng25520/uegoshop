@@ -35,8 +35,8 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 	 | 关联模型 -- Related方式实现, 并按字段排序
 	 |-------------------------------------------------------------------------
 	 */
-	db.Where(condition).First(&advert)
-	if notFound := db.RecordNotFound(); notFound == true {
+	recordDB := db.Where(condition).First(&advert)
+	if recordDB.RecordNotFound() == true {
 		return nil, errorcode.OK
 	}
 	result := db.Model(&advert).Related(&advert.Items,"Items").
