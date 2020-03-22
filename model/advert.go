@@ -3,7 +3,6 @@ package model
 import (
 	"ccshop/common"
 	"ccshop/errorcode"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -34,16 +33,16 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 	 |-------------------------------------------------------------------------
 	 | 关联模型 -- Related方式实现, 并按字段排序
 	 |-------------------------------------------------------------------------
-	 */
+	*/
 	recordDB := db.Where(condition).First(&advert)
 	if recordDB.RecordNotFound() == true {
 		return nil, errorcode.OK
 	}
-	result := db.Model(&advert).Related(&advert.Items,"Items").
-		Where(AdvertItem{AdID:advert.ID,IsEnabled:1}).
+	result := db.Model(&advert).Related(&advert.Items, "Items").
+		Where(AdvertItem{AdID: advert.ID, IsEnabled: 1}).
 		Order("sort asc").Find(&advert.Items)
 	/*
-     |--------------------------------------------------------------------------
+	   |--------------------------------------------------------------------------
 	*/
 
 	/*
@@ -57,7 +56,7 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 	 | db.Model(&advert).Association("Items")
 	 | result := db.Where(AdvertItem{AdID:advert.ID,IsEnabled:1}).Order("sort asc").Find(&advert.Items)
 	 |--------------------------------------------------------------------------
-	 */
+	*/
 
 	/*
 	 |-------------------------------------------------------------------------
@@ -76,7 +75,6 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 	*/
 
 	if err := result.Error; err != nil {
-		fmt.Println("err is :>>", err)
 		return nil, errorcode.DataFailed
 	}
 
@@ -97,8 +95,6 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 
 	return advert, errorcode.OK
 }
-
-
 
 func (a *Advert) FetchAdvert(db *gorm.DB, condition interface{}) (*Advert, errorcode.Code) {
 	advert := &Advert{}
