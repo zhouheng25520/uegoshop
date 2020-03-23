@@ -22,31 +22,9 @@ func NewAdvert(db *gorm.DB) *Advert {
 func AdvertRegister(router *gin.RouterGroup) {
 	advert := Advert{}
 	router.GET("/info", advert.GetInfo)
-	router.GET("/info-orm",advert.GetInfoFromOrm)
 }
-
-func (advert *Advert) GetInfoFromOrm(c *gin.Context)  {
-	code := c.DefaultQuery("code", "")
-	resp := response.NewResponse(c)
-	// todo validator
-	if common.IsEmptyString(code) {
-		resp.Body.Code = errorcode.ParamsInvalid.Code()
-		resp.ReturnJsonError()
-		return
-	}
-
-	advertService := service.NewAdvertService()
-	adverts, ecode := advertService.FetchAdvertingFromOrm(code)
-	if ecode != errorcode.OK {
-		resp.Body.Code = ecode.Code()
-		resp.ReturnJsonError()
-		return
-	}
-	resp.ReturnJsonSuccess(adverts)
-}
-
 // return advert information, if has error well be return error message
-func (advert *Advert) GetInfo(c *gin.Context) {
+func (advert *Advert) GetInfo(c *gin.Context)  {
 	code := c.DefaultQuery("code", "")
 	resp := response.NewResponse(c)
 	// todo validator
@@ -57,7 +35,7 @@ func (advert *Advert) GetInfo(c *gin.Context) {
 	}
 
 	advertService := service.NewAdvertService()
-	adverts, ecode := advertService.FetchAdvertingFromModel(code)
+	adverts, ecode := advertService.FetchAdverting(code)
 	if ecode != errorcode.OK {
 		resp.Body.Code = ecode.Code()
 		resp.ReturnJsonError()

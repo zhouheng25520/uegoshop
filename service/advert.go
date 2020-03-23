@@ -12,19 +12,12 @@ type AdvertService struct {
 	Advert *model.Advert
 }
 
-func (as *AdvertService) FetchAdvertingFromModel(code string) (*model.Advert, errorcode.Code) {
-	condition := map[string]interface{}{
-		"code": code,
+func (as *AdvertService) FetchAdverting(code string) (*model.Advert, errorcode.Code) {
+	condition := model.Advert{
+		Code: code,
+		IsEnabled: 1,
 	}
-	return as.Advert.FetchAdvert(as.Db, condition)
-}
-
-func (as *AdvertService) FetchAdvertingFromOrm(code string) (*model.Advert, errorcode.Code) {
-	//condition := map[string]interface{}{
-	//	"code":       code,
-	//	"is_enabled": 1,
-	//}
-	return as.Advert.FetchAdvertFromOrm(as.Db, model.Advert{Code: code, IsEnabled: 1})
+	return as.Advert.FetchAdvertFromOrm(as.Db, condition)
 }
 
 func NewAdvertService() *AdvertService {
