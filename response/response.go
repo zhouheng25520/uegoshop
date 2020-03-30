@@ -1,7 +1,7 @@
 package response
 
 import (
-	"ccshop/errorcode"
+	"uegoshop/errorcode"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

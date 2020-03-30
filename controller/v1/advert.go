@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"ccshop/common"
-	"ccshop/database"
-	"ccshop/errorcode"
-	"ccshop/response"
-	"ccshop/service"
+	"uegoshop/common"
+	"uegoshop/database"
+	"uegoshop/errorcode"
+	"uegoshop/response"
+	"uegoshop/service"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"time"

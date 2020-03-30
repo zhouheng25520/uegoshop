@@ -1,8 +1,8 @@
 package main
 
 import (
-	"ccshop/database"
-	"ccshop/router"
+	"uegoshop/database"
+	"uegoshop/router"
 	"net/http"
 )
 

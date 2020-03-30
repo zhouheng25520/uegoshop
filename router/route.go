@@ -1,7 +1,7 @@
 package router
 
 import (
-	"ccshop/controller/v1"
+	"uegoshop/controller/v1"
 	"github.com/gin-gonic/gin"
 )
 

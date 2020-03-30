@@ -58,7 +58,7 @@ func InitMysql() error {
 	config := &config{
 		User:        "root",
 		Password:    "123456",
-		DBName:      "ccshop",
+		DBName:      "uegoshop",
 		Charset:     "utf8",
 		MaxOpenConn: 200,
 		MaxLifetime: int(time.Millisecond),

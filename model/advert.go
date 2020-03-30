@@ -1,8 +1,8 @@
 package model
 
 import (
-	"ccshop/common"
-	"ccshop/errorcode"
+	"uegoshop/common"
+	"uegoshop/errorcode"
 	"github.com/jinzhu/gorm"
 	"time"
 )

@@ -1,9 +1,9 @@
 package service
 
 import (
-	"ccshop/database"
-	"ccshop/errorcode"
-	"ccshop/model"
+	"uegoshop/database"
+	"uegoshop/errorcode"
+	"uegoshop/model"
 	"github.com/jinzhu/gorm"
 )
 
