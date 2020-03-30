@@ -11,5 +11,5 @@ type AdvertItem struct {
 }
 
 func (ai *AdvertItem) TableName() string {
-	return "cc_advertisement_items"
+	return "advertisement_items"
 }

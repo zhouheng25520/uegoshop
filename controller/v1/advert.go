@@ -1,14 +1,13 @@
 package v1
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"uegoshop/common"
 	"uegoshop/database"
 	"uegoshop/errorcode"
 	"uegoshop/response"
 	"uegoshop/service"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type Advert struct {
@@ -26,7 +25,6 @@ func AdvertRegister(router *gin.RouterGroup) {
 }
 // return advert information, if has error well be return error message
 func (advert *Advert) GetInfo(c *gin.Context)  {
-	time.Sleep(time.Second*6)
 	code := c.DefaultQuery("code", "")
 	resp := response.NewResponse(c)
 	// todo validator

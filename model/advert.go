@@ -23,7 +23,7 @@ type Advert struct {
 }
 
 func (a *Advert) TableName() string {
-	return "cc_advertisements"
+	return "advertisements"
 }
 
 func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert, errorcode.Code) {

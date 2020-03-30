@@ -15,14 +15,12 @@ type Closer interface {
 	close() error
 }
 
-
 type Driver interface {
 	Creater
 	Closer
 }
 
 var DB *gorm.DB
-
 
 type config struct {
 	//sample:  "user:password@/dbname?charset=utf8&parseTime=True&loc=Local"
@@ -35,19 +33,21 @@ type config struct {
 	DBName string
 	// Database charset
 	Charset string
+	// table prefix
+	TablePrefix string
 	// parseTime=True&loc=Local......
 	Parameters string
 	// zero means defaultMaxIdleConn; negative means 0
-	maxIdle           int
+	maxIdle int
 	// <= 0 means unlimited
-	MaxOpenConn           int
+	MaxOpenConn int
 	// maximum amount of time a connection may be reused
-	MaxLifetime       int
+	MaxLifetime int
 }
 
 type mysqlDB struct {
 	config *config
-	DB *gorm.DB
+	DB     *gorm.DB
 }
 
 func NewMysqlDB(config *config) *mysqlDB {
@@ -61,13 +61,18 @@ func InitMysql() error {
 		DBName:      "uegoshop",
 		Charset:     "utf8",
 		MaxOpenConn: 200,
+		TablePrefix: "ueg_",
 		MaxLifetime: int(time.Millisecond),
 	}
 	db := NewMysqlDB(config)
+
 	err := db.Create()
 	if err != nil {
 		fmt.Println("create connection for mysql database has failed, err2es :", err)
 		return err
+	}
+	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+		return fmt.Sprintf("%s%s",config.TablePrefix, defaultTableName)
 	}
 	DB = db.DB
 	return nil
@@ -106,7 +111,7 @@ func (mdb *mysqlDB) Close() error {
 }
 
 // set connections pool
-func (mdb *mysqlDB) setConnectionPool()  {
+func (mdb *mysqlDB) setConnectionPool() {
 	if mdb.config.maxIdle > 0 {
 		mdb.DB.DB().SetMaxIdleConns(mdb.config.maxIdle)
 	}
@@ -122,6 +127,3 @@ func Db() *gorm.DB {
 
 	return DB
 }
-
-
-
