@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20200206145737-bbfc9a55622e // indirect
 	github.com/gin-gonic/gin v1.6.2
+	github.com/go-redis/redis/v7 v7.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
