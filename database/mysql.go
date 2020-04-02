@@ -61,7 +61,7 @@ func InitMysql() error {
 		DBName:      "uegoshop",
 		Charset:     "utf8",
 		MaxOpenConn: 200,
-		TablePrefix: "ueg_",
+		TablePrefix: "ue_",
 		MaxLifetime: int(time.Millisecond),
 	}
 	db := NewMysqlDB(config)
