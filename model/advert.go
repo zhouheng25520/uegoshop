@@ -5,6 +5,7 @@ import (
 	"uegoshop/errorcode"
 	"github.com/jinzhu/gorm"
 	"time"
+	"uegoshop/model/constant"
 )
 
 type Advert struct {
@@ -39,7 +40,7 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 		return nil, errorcode.OK
 	}
 	result := db.Model(&advert).Related(&advert.Items, "Items").
-		Where(AdvertItem{AdID: advert.ID, IsEnabled: 1}).
+		Where(AdvertItem{AdID: advert.ID, IsEnabled: constant.AdvertStatusEnabled}).
 		Order("sort asc").Find(&advert.Items)
 	/*
 	 |--------------------------------------------------------------------------
@@ -78,14 +79,14 @@ func (a *Advert) FetchAdvertFromOrm(db *gorm.DB, condition interface{}) (*Advert
 		return nil, errorcode.DataFailed
 	}
 
-	fromDateTime, err := common.FormatTime(common.CENTRAL_STANDARD_TIME_LAYOUT,
+	fromDateTime, err := common.FormatTime(common.CentralStandardTimeLayout,
 		advert.FromDate.String())
 	if err != nil {
 		return advert, errorcode.TimeStampFormat
 	}
 	advert.FromDateTime = fromDateTime.Unix()
 
-	endTime, err := common.FormatTime(common.CENTRAL_STANDARD_TIME_LAYOUT,
+	endTime, err := common.FormatTime(common.CentralStandardTimeLayout,
 		advert.ToDate.String())
 	if err != nil {
 		return advert, errorcode.TimeStampFormat

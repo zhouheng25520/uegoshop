@@ -1,12 +1,14 @@
 package common
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 )
 
 const (
 	// CST format time layout
-	CENTRAL_STANDARD_TIME_LAYOUT = "2006-01-02 15:04:05 +0800 CST"
+	CentralStandardTimeLayout = "2006-01-02 15:04:05 +0800 CST"
 )
 
 // return true if data string is empty
@@ -23,10 +25,31 @@ func FormatTime(layout, timeValue string) (time.Time, error) {
 	return time.Parse(layout, timeValue)
 }
 
-//func IsNil(v interface{}) bool {
-//	vi := reflect.TypeOf(v)
-//	if vi.Kind() == reflect.Ptr {
-//		return vi.Comparable()
-//	}
-//	return false
-//}
+
+// return true, if value eq nil
+func IsNil(any interface{}) bool {
+	re := false
+	if any != nil {
+		v := reflect.ValueOf(any)
+
+		if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+			re = v.IsNil()
+			if !re {
+				for {
+					fmt.Println(v.Type())
+					v2 := v.Elem()
+					if v2.Kind() != reflect.Ptr && v2.Kind() != reflect.Interface {
+						break
+					}
+					re = v2.IsNil()
+					if re {
+						break
+					}
+					v = v2
+				}
+			}
+
+		}
+	}
+	return re
+}
